@@ -1,10 +1,9 @@
-# python-basic-to-professional
+# python-basic-to-professional resource links:
 
-Welcome
-<ul>
-    <li>http://videos.bigdatauniversity.com/ML0101ENv3/videos/Welcome%20to%20ML%20with%20Python.mp4</li>
+- [30 days of python](https://blog.teclado.com/tag/30-days-of-python/)
+
+# Machine Learning with Python (IBM):
+- [Welcome to machine learning with python](http://videos.bigdatauniversity.com/ML0101ENv3/videos/Welcome%20to%20ML%20with%20Python.mp4)
 
 
 
-<ul> Additional Links : </ul>
-<li>https://blog.teclado.com/tag/30-days-of-python/</li>
