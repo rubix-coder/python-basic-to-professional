@@ -1,5 +1,6 @@
 # Check 🔗[Issues](https://github.com/rubix-coder/python-basic-to-professional/issues) for repository updates !
-All resource and coding platform link is provided in the issues created under Issues tab. `Do sort as Oldest` 
+All resource and coding platform link is provided in the issues created under Issues tab. 
+`Do sort as Oldest` 
 
 # python-basic-to-professional resource links:
 ## Course by Jose Salvatierra / Phil Best
