@@ -10,4 +10,4 @@ All resource and coding platform link is provided in the issues created under Is
 - [Welcome to machine learning with python](http://videos.bigdatauniversity.com/ML0101ENv3/videos/Welcome%20to%20ML%20with%20Python.mp4)
 
 ## Some good Kaggle competitions 
-- [ ] [airbus-ship-detection](https://www.kaggle.com/c/airbus-ship-detection)
+- [airbus-ship-detection](https://www.kaggle.com/c/airbus-ship-detection)
