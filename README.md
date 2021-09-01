@@ -15,6 +15,7 @@ All resource and coding platform link is provided in the issues created under Is
 - [intro-to-machine-learning](https://www.kaggle.com/learn/intro-to-machine-learning)
 - [microchallenges](https://www.kaggle.com/learn/microchallenges)
 - [intermediate-machine-learning](https://www.kaggle.com/learn/intermediate-machine-learning)
+- [thirty-days-of-ml&utm_content=final-day](https://www.kaggle.com/thirty-days-of-ml-assignments?utm_medium=email&utm_source=gamma&utm_campaign=thirty-days-of-ml&utm_content=final-day)
 
 ## Some good Kaggle competitions 
 - [airbus-ship-detection](https://www.kaggle.com/c/airbus-ship-detection)
