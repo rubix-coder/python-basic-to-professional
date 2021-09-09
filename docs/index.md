@@ -1,37 +1,35 @@
-## Welcome to GitHub Pages
+## Python projects by: Jesal P.
 
-You can use the [editor on GitHub](https://github.com/rubix-coder/python-basic-to-professional/edit/docs-folder/docs/index.md) to maintain and preview the content for your website in Markdown files.
+# Check 🔗[Issues](https://github.com/rubix-coder/python-basic-to-professional/issues) for repository updates !
+All resource and coding platform link is provided in the issues created under Issues tab. 
+`Do sort as Oldest` 
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+# python-basic-to-professional resource links:
+## Course by Jose Salvatierra / Phil Best
+- [30 days of python](https://blog.teclado.com/tag/30-days-of-python/)
 
-### Markdown
+## Machine Learning with Python (IBM): [Course link](https://skills.yourlearning.ibm.com/activity/SN-COURSE-V1:COGNITIVECLASS+ML0101ENV3+V4)
+- [Welcome to machine learning with python](http://videos.bigdatauniversity.com/ML0101ENv3/videos/Welcome%20to%20ML%20with%20Python.mp4)
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+## Micro Course on `Kaggle`
+- [python](https://www.kaggle.com/learn/python)
+- [pandas](https://www.kaggle.com/learn/pandas)
+- [intro-to-machine-learning](https://www.kaggle.com/learn/intro-to-machine-learning)
+- [microchallenges](https://www.kaggle.com/learn/microchallenges)
+- [intermediate-machine-learning](https://www.kaggle.com/learn/intermediate-machine-learning)
+- [thirty-days-of-ml&utm_content=final-day](https://www.kaggle.com/thirty-days-of-ml-assignments?utm_medium=email&utm_source=gamma&utm_campaign=thirty-days-of-ml&utm_content=final-day)
 
-```markdown
-Syntax highlighted code block
+## Some good Kaggle competitions 
+- [airbus-ship-detection](https://www.kaggle.com/c/airbus-ship-detection)
+- [30-days-of-ml](https://www.kaggle.com/c/30-days-of-ml)
+- [titanic](https://www.kaggle.com/c/titanic)
 
-# Header 1
-## Header 2
-### Header 3
-
-- Bulleted
-- List
-
-1. Numbered
-2. List
-
-**Bold** and _Italic_ and `Code` text
-
-[Link](url) and ![Image](src)
-```
-
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
-
-### Jekyll Themes
-
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/rubix-coder/python-basic-to-professional/settings/pages). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
-
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://docs.github.com/categories/github-pages-basics/) or [contact support](https://support.github.com/contact) and we’ll help you sort it out.
+## Python3 `#100daysofcode` challenge projects
+- [Band Name Generator](https://replit.com/@rubixcoder/band-name-generator-start?v=1)
+- [tip-calculator](https://replit.com/@rubixcoder/tip-calculator-start?v=1)
+- [Treasure Game](https://replit.com/@rubixcoder/mytreasuregame?v=1)
+- [Rock, Paper, Scissors](https://replit.com/@rubixcoder/rock-paper-scissors-start?v=1)
+- [Password generator](https://replit.com/@rubixcoder/password-generator-start?v=1)
+- [Hangman](https://replit.com/@rubixcoder/Day-7-Hangman-5-Start?v=1)
+- [Caesar Cipher](https://replit.com/@rubixcoder/caesar-cipher-4-end)
+- [Blind Auction bidding](https://replit.com/@rubixcoder/blind-auction-start)
