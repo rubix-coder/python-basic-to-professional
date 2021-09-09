@@ -6,8 +6,10 @@
 - [Rock, Paper, Scissors](https://replit.com/@rubixcoder/rock-paper-scissors-start?v=1)
 - [Password generator](https://replit.com/@rubixcoder/password-generator-start?v=1)
 - [Hangman](https://replit.com/@rubixcoder/Day-7-Hangman-5-Start?v=1)
-- [Caesar Cipher](https://replit.com/@rubixcoder/caesar-cipher-4-end)
-- [Blind Auction bidding](https://replit.com/@rubixcoder/blind-auction-start)
+- [Caesar Cipher](https://replit.com/@rubixcoder/caesar-cipher-4-end?v=1)
+- [Blind Auction bidding](https://replit.com/@rubixcoder/blind-auction-start?v=1)
+- [Calculator](https://replit.com/@rubixcoder/calculator-start?v=1)
+- [Guess the Number](https://replit.com/@rubixcoder/guess-the-number-start?v=1)
 
 ## Python basic-to-professional course links:
 ### - [Course by Jose Salvatierra / Phil Best](https://blog.teclado.com/tag/30-days-of-python/)
@@ -26,4 +28,3 @@
 - [airbus-ship-detection](https://www.kaggle.com/c/airbus-ship-detection)
 - [30-days-of-ml](https://www.kaggle.com/c/30-days-of-ml)
 - [titanic](https://www.kaggle.com/c/titanic)
-
