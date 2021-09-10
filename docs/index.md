@@ -12,6 +12,7 @@
 - [Guess the Number](https://replit.com/@rubixcoder/guess-the-number-start?v=1)
 - [Higher Lower](https://replit.com/@rubixcoder/higher-lower-start?v=1)
 
+
 ## Python basic-to-professional course links:
 ### - [Course by Jose Salvatierra / Phil Best](https://blog.teclado.com/tag/30-days-of-python/)
 
