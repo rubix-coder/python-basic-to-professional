@@ -44,7 +44,11 @@ while is_game_on:
         is_game_on = False
         score.game_over()
 
+<<<<<<< Updated upstream
     for segment in my_snake.segments[1:]:
         if my_snake.head.distance(segment) < 10:
             is_game_on = False
             score.game_over()
+=======
+screen.exitonclick()
+>>>>>>> Stashed changes
