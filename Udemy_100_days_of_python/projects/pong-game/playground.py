@@ -8,12 +8,13 @@ c = []
 time_list = []
 n_list = []
 for i in range(100):
-    x = [random.randint(0, 100) for i in range(random.randint(0, 10000))]
+    x = [random.randint(0, 200) for i in range(random.randint(0, 10000))]
     n_list.append(len(x))
     start = time.time()
     for it in x:
         for j in range(it):
-            c.append((it ** 2) * 2 * j)
+            for k in range(j):
+                c.append((it ** 2))
     end = time.time()
     time_list.append(round(abs(end - start), 2))
     print(f"time: {end - start}")
