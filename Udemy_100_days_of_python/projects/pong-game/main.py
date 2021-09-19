@@ -1,115 +1,59 @@
-# from turtle import Turtle, Screen
-#
-# is_game_on = True
-#
-#
-# def game_end():
-#     global is_game_on
-#     is_game_on = False
-#
-#
-# SCORE = 0
-# screen = Screen()
-# screen.setup(width=800, height=700)
-# screen.bgcolor("black")
-# screen.title("Pong Game")
-#
-# paddle = Turtle(shape="square")
-# paddle.color("white")
-# paddle.shapesize(stretch_wid=5, stretch_len=1)
-# paddle.pu()
-# screen.tracer(0)
-# paddle.goto(-350, 0)
-#
-#
-# def down():
-#     new_y = paddle.ycor()-20
-#     paddle.goto(paddle.xcor(), new_y)
-#
-#
-# def up():
-#     new_y = paddle.ycor()+20
-#     paddle.goto(paddle.xcor(), new_y)
-#
-#
-# screen.listen()
-# screen.onkey(up, "Up")
-# screen.onkey(down, "Down")
-#
-# while is_game_on:
-#     screen.update()
-# screen.exitonclick()
-# Python program to demonstrate
-# operator overloading
+from turtle import Turtle, Screen
+from paddle import Paddle
+from ball import Ball
+from scoreboard import Scoreboard
+import time
+
+is_game_on = True
 
 
-class Geek():
-    def __init__(self, value):
-        self.value = value
-
-    def __and__(self, obj):
-        print("And operator overloaded")
-        if isinstance(obj, Geek):
-            return self.value & obj.value
-        else:
-            raise ValueError("Must be a object of class Geek")
-
-    def __or__(self, obj):
-        print("Or operator overloaded")
-        if isinstance(obj, Geek):
-            return self.value | obj.value
-        else:
-            raise ValueError("Must be a object of class Geek")
-
-    def __xor__(self, obj):
-        print("Xor operator overloaded")
-        if isinstance(obj, Geek):
-            return self.value ^ obj.value
-        else:
-            raise ValueError("Must be a object of class Geek")
-
-    def __lshift__(self, obj):
-        print("lshift operator overloaded")
-        if isinstance(obj, Geek):
-            return self.value << obj.value
-        else:
-            raise ValueError("Must be a object of class Geek")
-
-    def __rshift__(self, obj):
-        print("rshift operator overloaded")
-        if isinstance(obj, Geek):
-            return self.value & obj.value
-        else:
-            raise ValueError("Must be a object of class Geek")
-
-    def __invert__(self):
-        print("Invert operator overloaded")
-        return ~self.value
+def game_end():
+    global is_game_on
+    is_game_on = False
 
 
-# Driver's code
-# if __name__ == "__main__":
-#     a = Geek(10)
-#     b = Geek(12)
-#     print(a & b)
-#     print(a | b)
-#     print(a ^ b)
-#     print(a << b)
-#     print(a >> b)
-#     print(~a)
+POSITIONS = [(350, 0), (-350, 0)]
 
-def mul(n1, n2):
-    return n1 * n2
+SCORE = 0
+screen = Screen()
+screen.setup(width=800, height=600)
+screen.bgcolor("black")
+screen.title("Pong Game")
+screen.tracer(0)
 
+r_paddle = Paddle(POSITIONS[0])
+l_paddle = Paddle(POSITIONS[1])
+ball = Ball()
+score = Scoreboard()
 
-def test_mul(n1, n2):
-    assert mul(n1, n2) <= 30, "multiplication should return less than 30"
+screen.listen()
+screen.onkey(r_paddle.up, "Up")
+screen.onkey(r_paddle.down, "Down")
 
+screen.listen()
+screen.onkey(l_paddle.up, "w")
+screen.onkey(l_paddle.down, "s")
 
+while is_game_on:
+    time.sleep(ball.move_speed)
+    screen.update()
+    ball.move()
+    # detect collision with wall
+    if ball.ycor() > 280 or ball.ycor() < -280:
+        ball.bounce_y()
 
-if __name__ == "__main__":
-    n1 = int(input("n1: "))
-    n2 = int(input("n2: "))
+    if ball.distance(r_paddle) < 50 and ball.xcor() > 320 or ball.distance(l_paddle) < 50 and ball.xcor() < -320:
+        print("made contact")
+        ball.bounce_x()
 
-    test_mul(n1,n2)
-    print("Passed")
+    if ball.xcor()>380:
+        print("missed the ball")
+        ball.reset_position()
+        score.l_point()
+
+    if ball.xcor()<-380:
+        print("missed the ball")
+        ball.reset_position()
+        score.r_point()
+
+screen.exitonclick()
