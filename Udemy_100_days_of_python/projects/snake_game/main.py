@@ -41,14 +41,10 @@ while is_game_on:
 
     if my_snake.head.xcor() > 240 or my_snake.head.xcor() < -240 or \
             my_snake.head.ycor() > 240 or my_snake.head.ycor() < -240:
-        is_game_on = False
-        score.game_over()
 
-<<<<<<< Updated upstream
+        score.reset()
+
     for segment in my_snake.segments[1:]:
         if my_snake.head.distance(segment) < 10:
-            is_game_on = False
-            score.game_over()
-=======
+            score.reset()
 screen.exitonclick()
->>>>>>> Stashed changes
