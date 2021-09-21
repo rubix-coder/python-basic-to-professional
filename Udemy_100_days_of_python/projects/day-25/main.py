@@ -33,3 +33,4 @@ squirrel_df = pd.DataFrame()
 squirrel_df["Count"] = data["Primary Fur Color"].groupby(data["Primary Fur Color"]).agg('count')
 print(squirrel_df)
 squirrel_df.to_csv("squirrel_data.csv")
+
