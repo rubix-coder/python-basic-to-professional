@@ -1,6 +1,7 @@
 import math
 from tkinter import *
 import winsound
+import webbrowser
 
 # ---------------------------- CONSTANTS ------------------------------- #
 PINK = "#e2979c"
@@ -14,12 +15,20 @@ LONG_BREAK_MIN = 20
 reps = 0
 timer = None
 
+
+# ---------------------------- OPEN WEBSITE ------------------------------ #
+def web_page():
+    webbrowser.open_new_tab(r"https://www.linkedin.com/in/jesalpatelindia/")
+
+
 # ---------------------------- NOTIFY BEEP ------------------------------- #
 def play_beep(times):
     frequency = 1000  # Set Frequency To 2500 Hertz
     duration = 200  # Set Duration To 1000 ms == 1 second
     for _ in range(times):
         winsound.Beep(frequency, duration)
+
+
 # ---------------------------- TIMER RESET ------------------------------- #
 def reset_timer():
     window.after_cancel(timer)
@@ -53,7 +62,6 @@ def start_timer():
     elif reps == 9:
         timer_label.config(text="Great!", fg=RED)
         play_beep(4)
-
 
     # print(f"reps: {reps}")
 
@@ -111,5 +119,11 @@ tick_label.grid(column=1, row=3)
 disc = Label(text="Once you get 4 x ✔, \nhit 'reset' and then \n'start' to continue ",
              font=(FONT_NAME, 10, "bold"), fg=RED, bg=YELLOW)
 disc.grid(column=1, row=4)
+
+# Dev Label
+dev = Button(text="Dev: Jesal P.",
+             font=(FONT_NAME, 8, "bold"), fg="blue", bg=YELLOW, command=web_page)
+dev.bind("link",webbrowser)
+dev.grid(column=1, row=5)
 
 window.mainloop()
