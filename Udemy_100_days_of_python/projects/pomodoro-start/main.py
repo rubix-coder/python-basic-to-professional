@@ -112,7 +112,7 @@ reset_button = Button(text="Reset", highlightthickness=0, command=reset_timer)
 reset_button.grid(column=2, row=2)
 
 # Tick Label
-tick_label = Label(font=(FONT_NAME, 20, "bold"), fg=
+tick_label = Label(font=(FONT_NAME, 20, "bold"), fg=GREEN
                    , bg=YELLOW)
 tick_label.grid(column=1, row=3)
 
