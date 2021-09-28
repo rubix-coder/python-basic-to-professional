@@ -104,7 +104,7 @@ pwd.grid(row=3, column=1, padx=0)
 
 path = Entry(width=52)
 path.grid(row=4, column=1, columnspan=4)
-path.insert(END, "C:\\users\\SKS\\Documents\\GitHub\\")
+path.insert(END, "your path to store datafile")
 path.focus()
 
 # Buttons
