@@ -4,7 +4,12 @@ from tkinter import messagebox
 import random
 import pyperclip
 import ctypes
-ctypes.windll.user32.ShowWindow( ctypes.windll.kernel32.GetConsoleWindow(), 6 )
+import webbrowser
+
+ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 6)
+
+def web_page():
+    webbrowser.open_new_tab(r"https://www.linkedin.com/in/jesalpatelindia/")
 
 # ---------------------------- PASSWORD GENERATOR ------------------------------- #
 def generate_password():
@@ -70,7 +75,7 @@ def save():
 
 window = Tk()
 window.title("Password Manager")
-window.config(padx=50, pady=50)
+window.config(padx=25, pady=25)
 
 canvas = Canvas(width=200, height=200, highlightthickness=0)
 logo_img = PhotoImage(file="logo.png")
@@ -104,7 +109,7 @@ pwd.grid(row=3, column=1, padx=0)
 
 path = Entry(width=52)
 path.grid(row=4, column=1, columnspan=4)
-path.insert(END, "your path to store datafile")
+path.insert(END, "C:\\users\\SKS\\Documents\\GitHub\\")
 path.focus()
 
 # Buttons
@@ -113,5 +118,11 @@ generate_button.grid(row=3, column=2, padx=0)
 
 add_button = Button(text="Add", width=44, command=save)
 add_button.grid(row=5, column=1, columnspan=2)
+
+# Dev Label
+dev = Button(text="help",
+             font=("Courier", 8, "bold"), fg="blue", bg="white", command=web_page)
+dev.bind("link",webbrowser)
+dev.grid(row=6,column=0)
 
 window.mainloop()

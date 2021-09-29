@@ -1,6 +1,6 @@
 from tkinter import *
 import ctypes
-
+import webbrowser
 ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 6)
 
 window = Tk()
