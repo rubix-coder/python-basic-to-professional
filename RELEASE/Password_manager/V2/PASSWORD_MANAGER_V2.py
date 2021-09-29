@@ -43,7 +43,7 @@ def generate_password():
 
 def check_file():
     try:
-        if not path.get():
+        if path.get():
             with open(f"path.txt", mode="r") as file:
                 PATH = file.read()
         else:
@@ -71,18 +71,17 @@ def save():
     if len(web) == 0 or len(username) == 0 or len(pwd_val) == 0:
         messagebox.showwarning(title="Oops", message="Please don't leave any fields empty")
     else:
-        PATH = check_file()
         try:
-            with open(f"{PATH}/data.json", mode="r") as data_file:
+            with open(f"data.json", mode="r") as data_file:
                 data = json.load(data_file)
                 data.update(new_data)
 
         except FileNotFoundError:
-            with open(f"{PATH}/data.json", mode="w") as data_file:
+            with open(f"data.json", mode="w") as data_file:
                 json.dump(new_data, data_file, indent=4)
 
         else:
-            with open(f"{PATH}/data.json", mode="w") as data_file:
+            with open(f"data.json", mode="w") as data_file:
                 json.dump(data, data_file, indent=4)
 
         finally:
@@ -93,10 +92,9 @@ def save():
 
 # ---------------------------- LOAD PASSWORD ------------------------------- #
 def search():
-    PATH = check_file()
     if website.get():
         try:
-            with open(f"{PATH}/data.json", mode="r") as data_file:
+            with open(f"data.json", mode="r") as data_file:
                 data = json.load(data_file)
                 pyperclip.copy(data[website.get()]['password'])
                 messagebox.showinfo(title=f"{website.get()}",
@@ -104,6 +102,9 @@ def search():
                                             f"password: {data[website.get()]['password']} \n"
                                             f"\npassword copied to clipboard use ctrl+p to use.")
         except KeyError:
+            messagebox.showerror(title="Error", message=f"No data found for website: {website.get()}")
+            
+        except FileNotFoundError:
             messagebox.showerror(title="Error", message=f"No data found for website: {website.get()}")
     else:
         messagebox.showwarning(title="Oops", message="Please enter the website")
@@ -130,8 +131,8 @@ username_label.grid(row=2, column=0)
 pwd_label = Label(text="Password: ")
 pwd_label.grid(row=3, column=0)
 
-path_label = Label(text="path: ")
-path_label.grid(row=4, column=0)
+# path_label = Label(text="path: ")
+# path_label.grid(row=4, column=0)
 
 # Entry
 website = Entry(width=32)
@@ -145,10 +146,6 @@ user_name.insert(END, "username@emaildomain.com")
 pwd = Entry(width=32)
 pwd.grid(row=3, column=1, padx=0)
 
-path = Entry(width=52)
-path.grid(row=4, column=1, columnspan=4)
-path.insert(END, "C:\\users\\SKS\\Documents\\GitHub\\")
-path.focus()
 
 # Buttons
 generate_button = Button(text="Generate Password", width=15, command=generate_password)

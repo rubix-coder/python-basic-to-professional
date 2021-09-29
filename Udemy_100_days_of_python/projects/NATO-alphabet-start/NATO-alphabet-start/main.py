@@ -8,7 +8,6 @@
 #     #Access key and value
 #     pass
 #
-import pandas
 # student_data_frame = pandas.DataFrame(student_dict)
 #
 # #Loop through rows of a data frame
@@ -27,7 +26,18 @@ nato_df = pd.read_csv("nato_phonetic_alphabet.csv")
 # {"A": "Alfa", "B": "Bravo"}
 nato_dict = {row["letter"]: row["code"] for index, row in nato_df.iterrows()}
 print(nato_dict)
+
+
 # TODO 2. Create a list of the phonetic code words from a word that the user inputs.
-user_input = input("Enter your name: ")
-output = [nato_dict[letter] for letter in user_input.strip().upper()]
-print(output)
+def generate_phonetic():
+    user_input = input("Enter your name: ")
+    try:
+        output = [nato_dict[letter] for letter in user_input.strip().upper()]
+    except KeyError:
+        print("Sorry, only letters in alphabet phrases")
+        generate_phonetic()
+    else:
+        print(output)
+
+
+generate_phonetic()

@@ -2,11 +2,21 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="6db9211b-cf24-46d5-ba73-3778860ca0d4" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/password-manager-start.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/password-manager-start.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../NATO-alphabet-start/.idea/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../NATO-alphabet-start/.idea/NATO-alphabet-start.iml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../NATO-alphabet-start/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../NATO-alphabet-start/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../NATO-alphabet-start/.idea/modules.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/../NATO-alphabet-start/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../course_downloads/Export-0e138d25-df16-4aff-8f07-d9786d95f82e.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../course_downloads/Export-fdbd53ca-e2d5-46d5-b049-3c499786d473.zip" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../NATO-alphabet-start/NATO-alphabet-start/.idea/NATO-alphabet-start.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../NATO-alphabet-start/NATO-alphabet-start/.idea/NATO-alphabet-start.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../NATO-alphabet-start/NATO-alphabet-start/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../NATO-alphabet-start/NATO-alphabet-start/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../NATO-alphabet-start/NATO-alphabet-start/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../NATO-alphabet-start/NATO-alphabet-start/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../NATO-alphabet-start/NATO-alphabet-start/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/../NATO-alphabet-start/NATO-alphabet-start/main.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logo.png" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/../requirements.txt" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -25,7 +35,9 @@
     </file-type-list>
   </component>
   <component name="ProjectId" id="1ykosRDY3l3ZS3SX2smZT5T7NJ0" />
-  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -33,7 +45,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/dist" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../NATO-alphabet-start" />
     <property name="settings.editor.selected.configurable" value="com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable" />
   </component>
   <component name="RecentsManager">
