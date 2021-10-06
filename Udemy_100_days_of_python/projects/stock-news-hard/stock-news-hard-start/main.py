@@ -1,12 +1,11 @@
 import requests
-import html
 import smtplib
 from email.message import EmailMessage
 
 STOCK = "TSLA"
 COMPANY_NAME = "Tesla Inc"
-USER = ""
-PWD = ""
+USER = "rubix.send@gmail.com"
+PWD = "*(d7ZO!Si449!QjNI"
 
 STOCK_ENDPOINT = "https://www.alphavantage.co/query"
 NEWS_ENDPOINT = "https://newsapi.org/v2/everything"
@@ -14,12 +13,12 @@ stock_parameters = {
     "apikey": "8YOVH3RQFPD9CXXF",
     "function": "TIME_SERIES_DAILY",
     "symbol": STOCK,
-    "interval": "5min",
+    # "interval": "5min",
 }
 news_parameters = {
     "apikey": "bbf1dcc1f02f41f08138709429b504d9",
-    "q": COMPANY_NAME,
-    "sortBy": "popularity"
+    "qInTitle": COMPANY_NAME,
+    # "sortBy": "popularity"
 }
 
 
@@ -31,35 +30,36 @@ def get_stock():
     for date in dates:
         close_prices.append(float(data['Time Series (Daily)'][date]['4. close']))
         print(f"{date}: {data['Time Series (Daily)'][date]['4. close']}")
-    check_profit(close_prices[0], close_prices[1])
+    check_diff(close_prices[0], close_prices[1])
 
 
-def check_profit(new_val, old_val):
+def check_diff(new_val, old_val):
     pos_diff = abs(new_val - old_val)
-    print(pos_diff, old_val * 0.05)
-    if pos_diff < old_val * 0.05:
-        print("+")
-        subject = f"{COMPANY_NAME} 🔺{(pos_diff * 100) / new_val}%"
+    diff_percent = round((pos_diff / new_val) * 100,2)
+
+    if diff_percent > 0.5:
+        subject = f"{COMPANY_NAME} 🔺{diff_percent}%"
+        print(subject)
         content = get_news()
-        send_mail(subject, content)
+        # send_mail(subject, content)
     else:
-        print("-")
-        subject = f"{COMPANY_NAME} 🔻{(pos_diff * 100) / new_val}%"
+        subject = f"{COMPANY_NAME} 🔻{diff_percent}%"
+        print(subject)
+
+    return subject
 
 
 def get_news():
     r = requests.get(NEWS_ENDPOINT, params=news_parameters)
-    news = html.unescape(r.json()['articles'][:3])
-    content = ""
-    for article in range(len(news)):
-        content += f"\narticle: {article} \n{news[article]['title']} \n{news[article]['description']}"
+    news = r.json()['articles'][:3]
+    content=""
+    for article in news:
+        content += "".join(f"Headline: {article['title']} \nBrief: {article['description']}")
     print(content)
     return content
 
 
 def send_mail(sub, msg):
-    msg = EmailMessage()
-    msg.set_content(msg)
 
     with smtplib.SMTP("smtp.gmail.com") as connection:
         connection.starttls()
@@ -73,7 +73,6 @@ def send_mail(sub, msg):
 
 
 get_stock()
-
 
 # Optional: Format the SMS message like this:
 """
