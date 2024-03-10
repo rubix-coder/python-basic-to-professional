@@ -1,5 +1,4 @@
-# Python projects by: Jesal P.
-## Python3 #100daysofcode challenge projects
+# Fun Python projects that [I](https://github.com/rubix-coder/] made durung #100days challange.
 - [Band Name Generator](https://replit.com/@rubixcoder/band-name-generator-start?v=1)
 - [tip-calculator](https://replit.com/@rubixcoder/tip-calculator-start?v=1)
 - [Treasure Game](https://replit.com/@rubixcoder/mytreasuregame?v=1)
@@ -12,21 +11,26 @@
 - [Guess the Number](https://replit.com/@rubixcoder/guess-the-number-start?v=1)
 - [Higher Lower](https://replit.com/@rubixcoder/higher-lower-start?v=1)
 
-
 ## Python basic-to-professional course links:
-### - [Course by Jose Salvatierra / Phil Best](https://blog.teclado.com/tag/30-days-of-python/)
+### - Courses from learning platforms:
+- [Course by Jose Salvatierra / Phil Best](https://blog.teclado.com/tag/30-days-of-python/)
 
-### - [Machine Learning with Python (IBM)](https://skills.yourlearning.ibm.com/activity/SN-COURSE-V1:COGNITIVECLASS+ML0101ENV3+V4)
-
-### - Micro Courses on `Kaggle`
+### - Micro Courses on Kaggle:
 - [python](https://www.kaggle.com/learn/python)
 - [pandas](https://www.kaggle.com/learn/pandas)
+
+## Machine Learning and Artificial Intelligebce Courses:
+### - Courses from learning platforms:
+- [Machine Learning with Python (IBM)](https://skills.yourlearning.ibm.com/activity/SN-COURSE-V1:COGNITIVECLASS+ML0101ENV3+V4)
+- [Generative AI with LLMs](https://www.coursera.org/learn/generative-ai-with-llms/home)
+
+### - Micro Courses on Kaggle:
 - [intro-to-machine-learning](https://www.kaggle.com/learn/intro-to-machine-learning)
 - [microchallenges](https://www.kaggle.com/learn/microchallenges)
 - [intermediate-machine-learning](https://www.kaggle.com/learn/intermediate-machine-learning)
 - [thirty-days-of-ml&utm_content=final-day](https://www.kaggle.com/thirty-days-of-ml-assignments?utm_medium=email&utm_source=gamma&utm_campaign=thirty-days-of-ml&utm_content=final-day)
 
-### - Some good Kaggle competitions 
+### - Kaggle competitions (Level 1/Beginner):
 - [airbus-ship-detection](https://www.kaggle.com/c/airbus-ship-detection)
 - [30-days-of-ml](https://www.kaggle.com/c/30-days-of-ml)
 - [titanic](https://www.kaggle.com/c/titanic)
