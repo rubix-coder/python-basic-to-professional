@@ -1,28 +1,28 @@
-## > Python basic-to-professional course links:
-### Courses from learning platforms:
+## 1. Python basic-to-professional course links:
+### 1.1 Courses from learning platforms:
 - [Course by Jose Salvatierra / Phil Best](https://blog.teclado.com/tag/30-days-of-python/)
 
-### Micro Courses on Kaggle:
+### 1.2 Micro Courses on Kaggle:
 - [python](https://www.kaggle.com/learn/python)
 - [pandas](https://www.kaggle.com/learn/pandas)
 
-## > Machine Learning and Artificial Intelligebce Courses:
-### Courses from learning platforms:
+## 2. Machine Learning and Artificial Intelligebce Courses:
+### 2.1 Courses from learning platforms:
 - [Machine Learning with Python (IBM)](https://skills.yourlearning.ibm.com/activity/SN-COURSE-V1:COGNITIVECLASS+ML0101ENV3+V4)
 - [Generative AI with LLMs](https://www.coursera.org/learn/generative-ai-with-llms/home)
 
-### Micro Courses on Kaggle:
+### 2.2 Micro Courses on Kaggle:
 - [intro-to-machine-learning](https://www.kaggle.com/learn/intro-to-machine-learning)
 - [microchallenges](https://www.kaggle.com/learn/microchallenges)
 - [intermediate-machine-learning](https://www.kaggle.com/learn/intermediate-machine-learning)
 - [thirty-days-of-ml&utm_content=final-day](https://www.kaggle.com/thirty-days-of-ml-assignments?utm_medium=email&utm_source=gamma&utm_campaign=thirty-days-of-ml&utm_content=final-day)
 
-### Kaggle competitions (Level 1/Beginner):
+### 2.3 Kaggle competitions (Level 1/Beginner):
 - [airbus-ship-detection](https://www.kaggle.com/c/airbus-ship-detection)
 - [30-days-of-ml](https://www.kaggle.com/c/30-days-of-ml)
 - [titanic](https://www.kaggle.com/c/titanic)
 
-## > Fun Python projects I made during #100days challange.
+## 3. Fun Python projects I made during #100days challange.
 - [Band Name Generator](https://replit.com/@rubixcoder/band-name-generator-start?v=1)
 - [tip-calculator](https://replit.com/@rubixcoder/tip-calculator-start?v=1)
 - [Treasure Game](https://replit.com/@rubixcoder/mytreasuregame?v=1)
