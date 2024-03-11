@@ -1,5 +1,28 @@
-# Python projects by: Jesal P.
-## Python3 #100daysofcode challenge projects
+## 1. Python basic-to-professional course links:
+### 1.1 Courses from learning platforms:
+- [Course by Jose Salvatierra / Phil Best](https://blog.teclado.com/tag/30-days-of-python/)
+
+### 1.2 Micro Courses on Kaggle:
+- [python](https://www.kaggle.com/learn/python)
+- [pandas](https://www.kaggle.com/learn/pandas)
+
+## 2. Machine Learning and Artificial Intelligebce Courses:
+### 2.1 Courses from learning platforms:
+- [Machine Learning with Python (IBM)](https://skills.yourlearning.ibm.com/activity/SN-COURSE-V1:COGNITIVECLASS+ML0101ENV3+V4)
+- [Generative AI with LLMs](https://www.coursera.org/learn/generative-ai-with-llms/home)
+
+### 2.2 Micro Courses on Kaggle:
+- [intro-to-machine-learning](https://www.kaggle.com/learn/intro-to-machine-learning)
+- [microchallenges](https://www.kaggle.com/learn/microchallenges)
+- [intermediate-machine-learning](https://www.kaggle.com/learn/intermediate-machine-learning)
+- [thirty-days-of-ml&utm_content=final-day](https://www.kaggle.com/thirty-days-of-ml-assignments?utm_medium=email&utm_source=gamma&utm_campaign=thirty-days-of-ml&utm_content=final-day)
+
+### 2.3 Kaggle competitions (Level 1/Beginner):
+- [airbus-ship-detection](https://www.kaggle.com/c/airbus-ship-detection)
+- [30-days-of-ml](https://www.kaggle.com/c/30-days-of-ml)
+- [titanic](https://www.kaggle.com/c/titanic)
+
+## 3. Fun Python projects I made during #100days challange.
 - [Band Name Generator](https://replit.com/@rubixcoder/band-name-generator-start?v=1)
 - [tip-calculator](https://replit.com/@rubixcoder/tip-calculator-start?v=1)
 - [Treasure Game](https://replit.com/@rubixcoder/mytreasuregame?v=1)
@@ -11,22 +34,3 @@
 - [Calculator](https://replit.com/@rubixcoder/calculator-start?v=1)
 - [Guess the Number](https://replit.com/@rubixcoder/guess-the-number-start?v=1)
 - [Higher Lower](https://replit.com/@rubixcoder/higher-lower-start?v=1)
-
-
-## Python basic-to-professional course links:
-### - [Course by Jose Salvatierra / Phil Best](https://blog.teclado.com/tag/30-days-of-python/)
-
-### - [Machine Learning with Python (IBM)](https://skills.yourlearning.ibm.com/activity/SN-COURSE-V1:COGNITIVECLASS+ML0101ENV3+V4)
-
-### - Micro Courses on `Kaggle`
-- [python](https://www.kaggle.com/learn/python)
-- [pandas](https://www.kaggle.com/learn/pandas)
-- [intro-to-machine-learning](https://www.kaggle.com/learn/intro-to-machine-learning)
-- [microchallenges](https://www.kaggle.com/learn/microchallenges)
-- [intermediate-machine-learning](https://www.kaggle.com/learn/intermediate-machine-learning)
-- [thirty-days-of-ml&utm_content=final-day](https://www.kaggle.com/thirty-days-of-ml-assignments?utm_medium=email&utm_source=gamma&utm_campaign=thirty-days-of-ml&utm_content=final-day)
-
-### - Some good Kaggle competitions 
-- [airbus-ship-detection](https://www.kaggle.com/c/airbus-ship-detection)
-- [30-days-of-ml](https://www.kaggle.com/c/30-days-of-ml)
-- [titanic](https://www.kaggle.com/c/titanic)
