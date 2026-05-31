@@ -1,0 +1,13 @@
+{
+  "name": "retro-snake-web",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Mobile retro Snake game - single-file vanilla Node.js, no native modules, Railway-ready.",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
