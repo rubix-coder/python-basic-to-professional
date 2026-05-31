@@ -130,6 +130,19 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
   pointer-events:none;
 }
 .toast.show{opacity:1}
+.profile{
+  margin-top:8px;border:1px dashed var(--line);padding:10px 12px;
+  display:flex;align-items:center;gap:12px;text-decoration:none;color:inherit;
+}
+.profile:active{border-color:var(--accent)}
+.profile .avatar{
+  width:38px;height:38px;border-radius:50%;background:var(--accent);color:var(--bg);
+  display:flex;align-items:center;justify-content:center;
+  font-size:16px;font-weight:bold;letter-spacing:1px;flex-shrink:0;
+}
+.profile .info{display:flex;flex-direction:column;gap:2px;min-width:0}
+.profile .info .name{font-size:13px;color:var(--accent);letter-spacing:1px}
+.profile .info .role{font-size:11px;color:#6f8a72;letter-spacing:1px}
 @media (max-height:680px){
   h1{font-size:22px}
   .btn{padding:11px;font-size:16px}
@@ -163,6 +176,13 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
   <button class="btn secondary" id="scores-btn">HIGH SCORES</button>
   <div class="spacer"></div>
   <button class="btn danger" id="logout-btn">LOGOUT</button>
+  <a class="profile" href="https://github.com/rubix-coder" target="_blank" rel="noopener noreferrer">
+    <div class="avatar">JP</div>
+    <div class="info">
+      <div class="name">DEVELOPED BY JESAL P</div>
+      <div class="role">@RUBIX-CODER</div>
+    </div>
+  </a>
 </div>
 
 <div id="screen-game" class="screen">
