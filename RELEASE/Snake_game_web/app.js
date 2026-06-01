@@ -245,12 +245,38 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
     opts = opts || {};
     const headers = { 'Content-Type': 'application/json' };
     if (state.token) headers['Authorization'] = 'Bearer ' + state.token;
-    const res = await fetch(p, { method: opts.method || 'GET', headers, body: opts.body ? JSON.stringify(opts.body) : undefined });
-    let data = {};
-    try { data = await res.json(); } catch(_) {}
-    if (res.status === 401) { logout(); throw new Error('session expired'); }
-    if (!res.ok) throw new Error(data.error || ('http ' + res.status));
-    return data;
+
+    // Try fetch first, fallback to XMLHttpRequest for Opera Mini
+    if (typeof fetch !== 'undefined') {
+      try {
+        const res = await fetch(p, { method: opts.method || 'GET', headers, body: opts.body ? JSON.stringify(opts.body) : undefined });
+        let data = {};
+        try { data = await res.json(); } catch(_) {}
+        if (res.status === 401) { logout(); throw new Error('session expired'); }
+        if (!res.ok) throw new Error(data.error || ('http ' + res.status));
+        return data;
+      } catch (e) {
+        if (opts.fallback !== false) return api(p, { ...opts, fallback: false, _xhr: true });
+        throw e;
+      }
+    }
+
+    // XMLHttpRequest fallback for Opera Mini
+    return new Promise((resolve, reject) => {
+      const xhr = new XMLHttpRequest();
+      xhr.open(opts.method || 'GET', p, true);
+      Object.keys(headers).forEach(k => xhr.setRequestHeader(k, headers[k]));
+      xhr.onload = () => {
+        let data = {};
+        try { data = JSON.parse(xhr.responseText); } catch(_) {}
+        if (xhr.status === 401) { logout(); reject(new Error('session expired')); return; }
+        if (xhr.status < 200 || xhr.status >= 300) { reject(new Error(data.error || ('http ' + xhr.status))); return; }
+        resolve(data);
+      };
+      xhr.onerror = () => reject(new Error('network error'));
+      xhr.onabort = () => reject(new Error('request aborted'));
+      xhr.send(opts.body ? JSON.stringify(opts.body) : null);
+    });
   }
 
   function logout(){
@@ -334,8 +360,9 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
   }
 
   function startGame(){
+    if (!canvas || !ctx) { toast('canvas not supported on this browser.'); enterHome(); return; }
     show('game');
-    requestAnimationFrame(() => {
+    try {
       resizeCanvas();
       snake = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
       dir = {x:1,y:0}; nextDir = {x:1,y:0};
@@ -349,7 +376,10 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
       draw();
       if (loopId) clearInterval(loopId);
       loopId = setInterval(tick, tickMs);
-    });
+    } catch (e) {
+      toast('game init failed: ' + e.message);
+      enterHome();
+    }
   }
   function stopGame(){ if (loopId) { clearInterval(loopId); loopId = null; } alive = false; }
   function togglePause(){
@@ -475,7 +505,21 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
     }
   });
 
+  function checkBrowserSupport(){
+    const canvas = document.getElementById('board');
+    const canvasOk = canvas && canvas.getContext && canvas.getContext('2d');
+    const storageOk = typeof localStorage !== 'undefined';
+    const asyncOk = typeof Promise !== 'undefined';
+
+    if (!canvasOk || !storageOk || !asyncOk) {
+      toast('⚠ browser not fully supported. try chrome/safari/firefox/edge.');
+      return false;
+    }
+    return true;
+  }
+
   (async function boot(){
+    if (!checkBrowserSupport()) return;
     if (state.token){
       try { await loadBest(); enterHome(); }
       catch(_) { logout(); }
