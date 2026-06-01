@@ -168,7 +168,7 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
 <div id="screen-login" class="screen active">
   <div class="spacer"></div>
   <h1>RETRO SNAKE</h1>
-  <p class="dim">pick a name to begin</p>
+  <p class="dim" id="login-status">loading...</p>
   <input id="login-name" type="text" placeholder="PLAYER_1" maxlength="16" autocomplete="off" inputmode="text" spellcheck="false">
   <button class="btn" id="login-btn">ENTER</button>
   <p class="dim">letters, digits, underscore (2-16)</p>
@@ -231,6 +231,7 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
 </div>
 
 <div id="toast" class="toast"></div>
+<div id="debug" style="position:fixed;bottom:0;right:0;background:#0a0a0a;color:#cfffd2;padding:8px;font-size:10px;max-width:200px;overflow:auto;max-height:100px;border:1px solid #4cff7a;display:none;z-index:99;font-family:monospace;"></div>
 </div>
 
 <script>
@@ -239,6 +240,18 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
   const $$ = s => Array.from(document.querySelectorAll(s));
   const SPEEDS = { easy: 200, medium: 130, hard: 80 };
   const GRID = 20;
+
+  function dbg(msg) {
+    const d = $('#debug');
+    if (!d) return;
+    const old = d.textContent;
+    d.textContent = (old ? old + '\n' : '') + msg;
+    d.style.display = 'block';
+    console.log(msg);
+  }
+  if (typeof localStorage === 'undefined') {
+    dbg('ERROR: localStorage unavailable');
+  }
 
   const state = {
     token: localStorage.getItem('snake_token') || null,
@@ -321,8 +334,10 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
     show('login');
   }
 
-  async function loadBest(){
-    try { const r = await api('/api/me'); state.best = r.best_by_mode || state.best; } catch(_) {}
+  function loadBest(){
+    return api('/api/me').then(function(r) {
+      state.best = r.best_by_mode || state.best;
+    }).catch(function(_) {});
   }
 
   function updateModeButtons(){
@@ -335,17 +350,18 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
     show('home');
   }
 
-  $('#login-btn').addEventListener('click', async () => {
+  $('#login-btn').addEventListener('click', function() {
     const name = $('#login-name').value.trim();
     if (!/^[A-Za-z0-9_]{2,16}$/.test(name)) { toast('invalid name'); return; }
-    try {
-      const r = await api('/api/login', { method: 'POST', body: { player_name: name } });
-      state.token = r.token; state.player = r.player_name;
-      localStorage.setItem('snake_token', r.token);
-      localStorage.setItem('snake_player', r.player_name);
-      await loadBest();
-      enterHome();
-    } catch(e){ toast(e.message); }
+    api('/api/login', { method: 'POST', body: { player_name: name } })
+      .then(function(r) {
+        state.token = r.token; state.player = r.player_name;
+        localStorage.setItem('snake_token', r.token);
+        localStorage.setItem('snake_player', r.player_name);
+        return loadBest();
+      })
+      .then(function() { enterHome(); })
+      .catch(function(e){ toast(e.message); });
   });
   $('#login-name').addEventListener('keydown', e => { if (e.key === 'Enter') $('#login-btn').click(); });
 
@@ -364,19 +380,20 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
 
   $$('.smode-btn').forEach(b => b.addEventListener('click', () => openScores(b.dataset.mode)));
 
-  async function openScores(mode){
+  function openScores(mode){
     $$('.smode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
     show('scores');
     const list = $('#scores-list');
     list.innerHTML = '<div class="dim">loading...</div>';
-    try {
-      const r = await api('/api/scores?mode=' + encodeURIComponent(mode));
-      if (!r.scores.length) { list.innerHTML = '<div class="dim">no scores yet - go play!</div>'; return; }
-      list.innerHTML = r.scores.map((s, i) => {
-        const cls = ['score-row', i === 0 ? 'gold' : '', s.player_name === state.player ? 'me' : ''].filter(Boolean).join(' ');
-        return '<div class="' + cls + '"><span>' + (i+1) + '. ' + escapeHtml(s.player_name) + '</span><span>' + s.high_score + '</span></div>';
-      }).join('');
-    } catch(e){ list.innerHTML = '<div class="dim">error: ' + escapeHtml(e.message) + '</div>'; }
+    api('/api/scores?mode=' + encodeURIComponent(mode))
+      .then(function(r) {
+        if (!r.scores.length) { list.innerHTML = '<div class="dim">no scores yet - go play!</div>'; return; }
+        list.innerHTML = r.scores.map((s, i) => {
+          const cls = ['score-row', i === 0 ? 'gold' : '', s.player_name === state.player ? 'me' : ''].filter(Boolean).join(' ');
+          return '<div class="' + cls + '"><span>' + (i+1) + '. ' + escapeHtml(s.player_name) + '</span><span>' + s.high_score + '</span></div>';
+        }).join('');
+      })
+      .catch(function(e){ list.innerHTML = '<div class="dim">error: ' + escapeHtml(e.message) + '</div>'; });
   }
   function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
@@ -496,7 +513,7 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
     drawGrid();
   }
 
-  async function gameOver(){
+  function gameOver(){
     alive = false;
     stopGame();
     if (useCanvas) {
@@ -516,10 +533,9 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
     if (score > prev){
       state.best[state.mode] = score;
       $('#lbl-best').textContent = score;
-      try {
-        await api('/api/score', { method: 'POST', body: { game_type: state.mode, score: score } });
-        toast('NEW HIGH SCORE!');
-      } catch(e){ toast('save failed: ' + e.message); }
+      api('/api/score', { method: 'POST', body: { game_type: state.mode, score: score } })
+        .then(function() { toast('NEW HIGH SCORE!'); })
+        .catch(function(e){ toast('save failed: ' + e.message); });
     }
   }
 
@@ -568,15 +584,44 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
     }
   });
 
-  (async function boot(){
+  function updateLoginStatus(msg) {
+    const status = $('#login-status');
+    if (status) status.textContent = msg;
+  }
+
+  function boot(){
+    dbg('Init start');
+    updateLoginStatus('initializing...');
+
     detectRenderer();
+    dbg('Renderer: ' + (useCanvas ? 'canvas' : 'html'));
+    updateLoginStatus('renderer ok');
+
     if (state.token){
-      try { await loadBest(); enterHome(); }
-      catch(_) { logout(); }
+      dbg('Token found, restoring');
+      updateLoginStatus('loading profile...');
+      loadBest()
+        .then(function() {
+          dbg('Profile loaded');
+          enterHome();
+        })
+        .catch(function(e){
+          dbg('Restore error: ' + e.message);
+          updateLoginStatus('session expired');
+          logout();
+        });
     } else {
-      show('login');
+      dbg('No token');
+      updateLoginStatus('pick a name to begin');
     }
-  })();
+    dbg('Ready');
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', boot);
+  } else {
+    boot();
+  }
 })();
 </script>
 </body>
