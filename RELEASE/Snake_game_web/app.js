@@ -570,13 +570,6 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
     touchStart = null;
   }, { passive: true });
 
-  document.addEventListener('keydown', e => {
-    const m = { ArrowUp:'up', ArrowDown:'down', ArrowLeft:'left', ArrowRight:'right',
-                w:'up', s:'down', a:'left', d:'right',
-                W:'up', S:'down', A:'left', D:'right' };
-    if (m[e.key]) { e.preventDefault(); setDir(DIRS[m[e.key]]); }
-    if (e.key === ' ') { e.preventDefault(); togglePause(); }
-  });
 
   window.addEventListener('resize', () => {
     if (document.getElementById('screen-game').classList.contains('active') && useCanvas){
