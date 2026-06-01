@@ -1,6 +1,6 @@
 // Retro Snake - single-file vanilla Node.js web app
-// Mobile-first (Samsung S24+, OnePlus 13, etc.). Railway-friendly: no native modules.
-// Data persists to RAILWAY_VOLUME_MOUNT_PATH/players.json (or ./data/players.json locally).
+// Mobile-first. Canvas + HTML/CSS dual rendering (Opera Mini compatible).
+// Railway-friendly: no native modules.
 
 const http = require('http');
 const fs = require('fs');
@@ -71,7 +71,7 @@ const HTML = `<!doctype html>
 <style>
 :root{
   --bg:#0a0a0a; --fg:#cfffd2; --accent:#4cff7a; --warn:#ffd14c;
-  --danger:#ff4c5e; --grid:#0f1a12; --line:#1c2e21;
+  --danger:#ff4c5e; --grid:#0f1a12; --line:#1c2e21; --cell:24px;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{width:100%;height:100%;overflow:hidden;background:var(--bg)}
@@ -111,11 +111,22 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
 .row .btn{flex:1;padding:12px 4px;font-size:13px;letter-spacing:1px}
 .bar{display:flex;justify-content:space-between;align-items:center;padding:0 4px;font-size:13px;letter-spacing:1px}
 .bar span{color:var(--accent)}
-#board{
+#board-canvas{
   width:100%;aspect-ratio:1/1;background:var(--grid);
   border:2px solid var(--accent);display:block;
   image-rendering:pixelated;touch-action:none;
 }
+#board-grid{
+  display:grid;grid-template-columns:repeat(20,1fr);gap:1px;
+  width:100%;aspect-ratio:1/1;background:var(--grid);
+  border:2px solid var(--accent);padding:1px;
+  touch-action:none;
+}
+.cell{background:var(--grid);width:var(--cell);height:var(--cell);aspect-ratio:1/1}
+.cell.snake{background:var(--fg)}
+.cell.head{background:var(--accent)}
+.cell.food{background:var(--warn);animation:pulse .4s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
 .pad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:auto}
 .pad .btn{padding:18px 0;font-size:22px;letter-spacing:0}
 .pad .blank{visibility:hidden}
@@ -147,6 +158,7 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
   h1{font-size:22px}
   .btn{padding:11px;font-size:16px}
   .pad .btn{padding:14px 0;font-size:20px}
+  :root{--cell:20px}
 }
 </style>
 </head>
@@ -191,7 +203,8 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
     <div>SCORE: <span id="lbl-score">0</span></div>
     <div>BEST: <span id="lbl-best">0</span></div>
   </div>
-  <canvas id="board"></canvas>
+  <canvas id="board-canvas" style="display:none"></canvas>
+  <div id="board-grid" style="display:none"></div>
   <div class="row">
     <button class="btn secondary" id="pause-btn">PAUSE</button>
     <button class="btn danger" id="quit-btn">HOME</button>
@@ -234,6 +247,29 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
     best: { easy: 0, medium: 0, hard: 0 },
   };
 
+  const canvas = $('#board-canvas');
+  const gridBoard = $('#board-grid');
+  let ctx = null;
+  let useCanvas = false;
+
+  function detectRenderer(){
+    if (!canvas) return false;
+    try {
+      ctx = canvas.getContext('2d');
+      if (!ctx) return false;
+      canvas.style.display = 'block';
+      gridBoard.style.display = 'none';
+      useCanvas = true;
+      return true;
+    } catch (e) {
+      ctx = null;
+      useCanvas = false;
+      canvas.style.display = 'none';
+      gridBoard.style.display = 'grid';
+      return false;
+    }
+  }
+
   function show(id){ $$('.screen').forEach(s => s.classList.remove('active')); $('#screen-'+id).classList.add('active'); }
   function toast(msg, ms){
     const t = $('#toast'); t.textContent = msg; t.classList.add('show');
@@ -246,7 +282,6 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
     const headers = { 'Content-Type': 'application/json' };
     if (state.token) headers['Authorization'] = 'Bearer ' + state.token;
 
-    // Try fetch first, fallback to XMLHttpRequest for Opera Mini
     if (typeof fetch !== 'undefined') {
       try {
         const res = await fetch(p, { method: opts.method || 'GET', headers, body: opts.body ? JSON.stringify(opts.body) : undefined });
@@ -261,7 +296,6 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
       }
     }
 
-    // XMLHttpRequest fallback for Opera Mini
     return new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();
       xhr.open(opts.method || 'GET', p, true);
@@ -347,11 +381,10 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
   function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
   // ---- game ----
-  const canvas = $('#board');
-  const ctx = canvas.getContext('2d');
   let snake, dir, nextDir, food, score, tickMs, loopId = null, paused = false, alive = false, cellPx = 20;
 
   function resizeCanvas(){
+    if (!useCanvas) return;
     const dpr = window.devicePixelRatio || 1;
     const cssSize = canvas.clientWidth;
     canvas.width = Math.max(1, Math.floor(cssSize * dpr));
@@ -359,36 +392,85 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
     cellPx = canvas.width / GRID;
   }
 
-  function startGame(){
-    if (!canvas || !ctx) { toast('canvas not supported on this browser.'); enterHome(); return; }
-    show('game');
-    try {
-      resizeCanvas();
-      snake = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
-      dir = {x:1,y:0}; nextDir = {x:1,y:0};
-      score = 0; alive = true; paused = false;
-      tickMs = SPEEDS[state.mode];
-      placeFood();
-      $('#lbl-mode').textContent = state.mode.toUpperCase();
-      $('#lbl-score').textContent = '0';
-      $('#lbl-best').textContent = state.best[state.mode] || 0;
-      $('#pause-btn').textContent = 'PAUSE';
-      draw();
-      if (loopId) clearInterval(loopId);
-      loopId = setInterval(tick, tickMs);
-    } catch (e) {
-      toast('game init failed: ' + e.message);
-      enterHome();
+  function drawGrid(){
+    if (useCanvas) {
+      drawCanvas();
+    } else {
+      drawHtmlGrid();
     }
   }
+
+  function drawCanvas(){
+    ctx.fillStyle = cssVar('--grid');
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.strokeStyle = cssVar('--line');
+    ctx.lineWidth = 1;
+    for (let i = 1; i < GRID; i++){
+      ctx.beginPath(); ctx.moveTo(i * cellPx, 0); ctx.lineTo(i * cellPx, canvas.height); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, i * cellPx); ctx.lineTo(canvas.width, i * cellPx); ctx.stroke();
+    }
+    const pulse = 1 + Math.sin(Date.now() / 200) * 0.08;
+    const fx = food.x * cellPx, fy = food.y * cellPx;
+    const pad = cellPx * (1 - 0.7 * pulse) / 2;
+    ctx.fillStyle = cssVar('--warn');
+    ctx.fillRect(fx + pad, fy + pad, cellPx - pad*2, cellPx - pad*2);
+    snake.forEach((s, i) => {
+      ctx.fillStyle = i === 0 ? cssVar('--fg') : cssVar('--accent');
+      ctx.fillRect(s.x * cellPx + 1, s.y * cellPx + 1, cellPx - 2, cellPx - 2);
+    });
+  }
+
+  function drawHtmlGrid(){
+    const cells = gridBoard.querySelectorAll('.cell');
+    if (cells.length !== GRID * GRID) {
+      gridBoard.innerHTML = '';
+      for (let i = 0; i < GRID * GRID; i++) {
+        const c = document.createElement('div');
+        c.className = 'cell';
+        c.dataset.idx = i;
+        gridBoard.appendChild(c);
+      }
+    }
+    gridBoard.querySelectorAll('.cell').forEach(c => c.className = 'cell');
+    snake.forEach((s, i) => {
+      const idx = s.y * GRID + s.x;
+      const c = gridBoard.querySelector('[data-idx="' + idx + '"]');
+      if (c) c.className = 'cell ' + (i === 0 ? 'head' : 'snake');
+    });
+    const foodIdx = food.y * GRID + food.x;
+    const foodCell = gridBoard.querySelector('[data-idx="' + foodIdx + '"]');
+    if (foodCell) foodCell.className = 'cell food';
+  }
+
+  function startGame(){
+    if (!detectRenderer()) {
+      // Fallback: use HTML grid
+    }
+    show('game');
+    snake = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+    dir = {x:1,y:0}; nextDir = {x:1,y:0};
+    score = 0; alive = true; paused = false;
+    tickMs = SPEEDS[state.mode];
+    placeFood();
+    $('#lbl-mode').textContent = state.mode.toUpperCase();
+    $('#lbl-score').textContent = '0';
+    $('#lbl-best').textContent = state.best[state.mode] || 0;
+    $('#pause-btn').textContent = 'PAUSE';
+    if (useCanvas) resizeCanvas();
+    drawGrid();
+    if (loopId) clearInterval(loopId);
+    loopId = setInterval(tick, tickMs);
+  }
+
   function stopGame(){ if (loopId) { clearInterval(loopId); loopId = null; } alive = false; }
   function togglePause(){
     if (!alive) return;
     paused = !paused;
     $('#pause-btn').textContent = paused ? 'RESUME' : 'PAUSE';
-    if (paused){ if (loopId){ clearInterval(loopId); loopId = null; } drawPaused(); }
+    if (paused){ if (loopId){ clearInterval(loopId); loopId = null; } }
     else { loopId = setInterval(tick, tickMs); }
   }
+
   function placeFood(){
     const taken = new Set(snake.map(s => s.x + ',' + s.y));
     let f, tries = 0;
@@ -396,6 +478,7 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
     while (taken.has(f.x+','+f.y) && tries < 500);
     food = f;
   }
+
   function tick(){
     if (!alive || paused) return;
     dir = nextDir;
@@ -410,50 +493,25 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
     } else {
       snake.pop();
     }
-    draw();
+    drawGrid();
   }
-  function draw(){
-    ctx.fillStyle = cssVar('--grid');
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    // subtle grid lines
-    ctx.strokeStyle = cssVar('--line');
-    ctx.lineWidth = 1;
-    for (let i = 1; i < GRID; i++){
-      ctx.beginPath(); ctx.moveTo(i * cellPx, 0); ctx.lineTo(i * cellPx, canvas.height); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(0, i * cellPx); ctx.lineTo(canvas.width, i * cellPx); ctx.stroke();
-    }
-    // food (pulsing goodie)
-    const pulse = 1 + Math.sin(Date.now() / 200) * 0.08;
-    const fx = food.x * cellPx, fy = food.y * cellPx;
-    const pad = cellPx * (1 - 0.7 * pulse) / 2;
-    ctx.fillStyle = cssVar('--warn');
-    ctx.fillRect(fx + pad, fy + pad, cellPx - pad*2, cellPx - pad*2);
-    // snake
-    snake.forEach((s, i) => {
-      ctx.fillStyle = i === 0 ? cssVar('--fg') : cssVar('--accent');
-      ctx.fillRect(s.x * cellPx + 1, s.y * cellPx + 1, cellPx - 2, cellPx - 2);
-    });
-  }
-  function drawPaused(){
-    ctx.fillStyle = 'rgba(0,0,0,0.65)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = cssVar('--accent');
-    ctx.font = (canvas.width / 11) + 'px monospace';
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('PAUSED', canvas.width / 2, canvas.height / 2);
-  }
+
   async function gameOver(){
     alive = false;
     stopGame();
-    ctx.fillStyle = 'rgba(0,0,0,0.7)';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = cssVar('--danger');
-    ctx.font = (canvas.width / 11) + 'px monospace';
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2 - canvas.width / 16);
-    ctx.fillStyle = cssVar('--fg');
-    ctx.font = (canvas.width / 16) + 'px monospace';
-    ctx.fillText('SCORE ' + score, canvas.width / 2, canvas.height / 2 + canvas.width / 16);
+    if (useCanvas) {
+      ctx.fillStyle = 'rgba(0,0,0,0.7)';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = cssVar('--danger');
+      ctx.font = (canvas.width / 11) + 'px monospace';
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2 - canvas.width / 16);
+      ctx.fillStyle = cssVar('--fg');
+      ctx.font = (canvas.width / 16) + 'px monospace';
+      ctx.fillText('SCORE ' + score, canvas.width / 2, canvas.height / 2 + canvas.width / 16);
+    } else {
+      gridBoard.style.opacity = '0.4';
+    }
     const prev = state.best[state.mode] || 0;
     if (score > prev){
       state.best[state.mode] = score;
@@ -464,12 +522,14 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
       } catch(e){ toast('save failed: ' + e.message); }
     }
   }
+
   const DIRS = { up:{x:0,y:-1}, down:{x:0,y:1}, left:{x:-1,y:0}, right:{x:1,y:0} };
   function setDir(d){
     if (!alive || paused) return;
     if (d.x === -dir.x && d.y === -dir.y) return;
     nextDir = d;
   }
+
   $$('.dir-btn').forEach(b => {
     const fire = e => { e.preventDefault(); setDir(DIRS[b.dataset.dir]); };
     b.addEventListener('click', fire);
@@ -477,11 +537,14 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
   });
 
   let touchStart = null;
-  canvas.addEventListener('touchstart', e => {
-    if (e.touches.length !== 1) return;
-    touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+  document.addEventListener('touchstart', e => {
+    const t = e.target;
+    if (t === canvas || t === gridBoard) {
+      if (e.touches.length !== 1) return;
+      touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
+    }
   }, { passive: true });
-  canvas.addEventListener('touchend', e => {
+  document.addEventListener('touchend', e => {
     if (!touchStart || !e.changedTouches.length) return;
     const t = e.changedTouches[0];
     const dx = t.clientX - touchStart.x, dy = t.clientY - touchStart.y;
@@ -500,26 +563,13 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
   });
 
   window.addEventListener('resize', () => {
-    if (canvas.clientWidth && document.getElementById('screen-game').classList.contains('active')){
-      resizeCanvas(); draw();
+    if (document.getElementById('screen-game').classList.contains('active') && useCanvas){
+      resizeCanvas(); drawGrid();
     }
   });
 
-  function checkBrowserSupport(){
-    const canvas = document.getElementById('board');
-    const canvasOk = canvas && canvas.getContext && canvas.getContext('2d');
-    const storageOk = typeof localStorage !== 'undefined';
-    const asyncOk = typeof Promise !== 'undefined';
-
-    if (!canvasOk || !storageOk || !asyncOk) {
-      toast('⚠ browser not fully supported. try chrome/safari/firefox/edge.');
-      return false;
-    }
-    return true;
-  }
-
   (async function boot(){
-    if (!checkBrowserSupport()) return;
+    detectRenderer();
     if (state.token){
       try { await loadBest(); enterHome(); }
       catch(_) { logout(); }
