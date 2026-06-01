@@ -1,6 +1,6 @@
 // Retro Snake - single-file vanilla Node.js web app
-// Mobile-first. Canvas + HTML/CSS dual rendering (Opera Mini compatible).
-// Railway-friendly: no native modules.
+// Mobile-first (Samsung S24+, OnePlus 13, etc.). Railway-friendly: no native modules.
+// Data persists to RAILWAY_VOLUME_MOUNT_PATH/players.json (or ./data/players.json locally).
 
 const http = require('http');
 const fs = require('fs');
@@ -71,7 +71,7 @@ const HTML = `<!doctype html>
 <style>
 :root{
   --bg:#0a0a0a; --fg:#cfffd2; --accent:#4cff7a; --warn:#ffd14c;
-  --danger:#ff4c5e; --grid:#0f1a12; --line:#1c2e21; --cell:24px;
+  --danger:#ff4c5e; --grid:#0f1a12; --line:#1c2e21;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{width:100%;height:100%;overflow:hidden;background:var(--bg)}
@@ -111,22 +111,11 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
 .row .btn{flex:1;padding:12px 4px;font-size:13px;letter-spacing:1px}
 .bar{display:flex;justify-content:space-between;align-items:center;padding:0 4px;font-size:13px;letter-spacing:1px}
 .bar span{color:var(--accent)}
-#board-canvas{
+#board{
   width:100%;aspect-ratio:1/1;background:var(--grid);
   border:2px solid var(--accent);display:block;
   image-rendering:pixelated;touch-action:none;
 }
-#board-grid{
-  display:grid;grid-template-columns:repeat(20,1fr);gap:1px;
-  width:100%;aspect-ratio:1/1;background:var(--grid);
-  border:2px solid var(--accent);padding:1px;
-  touch-action:none;
-}
-.cell{background:var(--grid);width:var(--cell);height:var(--cell);aspect-ratio:1/1}
-.cell.snake{background:var(--fg)}
-.cell.head{background:var(--accent)}
-.cell.food{background:var(--warn);animation:pulse .4s infinite}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
 .pad{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:auto}
 .pad .btn{padding:18px 0;font-size:22px;letter-spacing:0}
 .pad .blank{visibility:hidden}
@@ -158,7 +147,6 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
   h1{font-size:22px}
   .btn{padding:11px;font-size:16px}
   .pad .btn{padding:14px 0;font-size:20px}
-  :root{--cell:20px}
 }
 </style>
 </head>
@@ -168,7 +156,7 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
 <div id="screen-login" class="screen active">
   <div class="spacer"></div>
   <h1>RETRO SNAKE</h1>
-  <p class="dim" id="login-status">loading...</p>
+  <p class="dim">pick a name to begin</p>
   <input id="login-name" type="text" placeholder="PLAYER_1" maxlength="16" autocomplete="off" inputmode="text" spellcheck="false">
   <button class="btn" id="login-btn">ENTER</button>
   <p class="dim">letters, digits, underscore (2-16)</p>
@@ -203,8 +191,7 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
     <div>SCORE: <span id="lbl-score">0</span></div>
     <div>BEST: <span id="lbl-best">0</span></div>
   </div>
-  <canvas id="board-canvas" style="display:none"></canvas>
-  <div id="board-grid" style="display:none"></div>
+  <canvas id="board"></canvas>
   <div class="row">
     <button class="btn secondary" id="pause-btn">PAUSE</button>
     <button class="btn danger" id="quit-btn">HOME</button>
@@ -231,7 +218,6 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
 </div>
 
 <div id="toast" class="toast"></div>
-<div id="debug" style="position:fixed;bottom:0;right:0;background:#0a0a0a;color:#cfffd2;padding:8px;font-size:10px;max-width:200px;overflow:auto;max-height:100px;border:1px solid #4cff7a;display:none;z-index:99;font-family:monospace;"></div>
 </div>
 
 <script>
@@ -241,47 +227,12 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
   const SPEEDS = { easy: 200, medium: 130, hard: 80 };
   const GRID = 20;
 
-  function dbg(msg) {
-    const d = $('#debug');
-    if (!d) return;
-    const old = d.textContent;
-    d.textContent = (old ? old + '\n' : '') + msg;
-    d.style.display = 'block';
-    console.log(msg);
-  }
-  if (typeof localStorage === 'undefined') {
-    dbg('ERROR: localStorage unavailable');
-  }
-
   const state = {
     token: localStorage.getItem('snake_token') || null,
     player: localStorage.getItem('snake_player') || null,
     mode: localStorage.getItem('snake_mode') || 'easy',
     best: { easy: 0, medium: 0, hard: 0 },
   };
-
-  const canvas = $('#board-canvas');
-  const gridBoard = $('#board-grid');
-  let ctx = null;
-  let useCanvas = false;
-
-  function detectRenderer(){
-    if (!canvas) return false;
-    try {
-      ctx = canvas.getContext('2d');
-      if (!ctx) return false;
-      canvas.style.display = 'block';
-      gridBoard.style.display = 'none';
-      useCanvas = true;
-      return true;
-    } catch (e) {
-      ctx = null;
-      useCanvas = false;
-      canvas.style.display = 'none';
-      gridBoard.style.display = 'grid';
-      return false;
-    }
-  }
 
   function show(id){ $$('.screen').forEach(s => s.classList.remove('active')); $('#screen-'+id).classList.add('active'); }
   function toast(msg, ms){
@@ -294,36 +245,12 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
     opts = opts || {};
     const headers = { 'Content-Type': 'application/json' };
     if (state.token) headers['Authorization'] = 'Bearer ' + state.token;
-
-    if (typeof fetch !== 'undefined') {
-      try {
-        const res = await fetch(p, { method: opts.method || 'GET', headers, body: opts.body ? JSON.stringify(opts.body) : undefined });
-        let data = {};
-        try { data = await res.json(); } catch(_) {}
-        if (res.status === 401) { logout(); throw new Error('session expired'); }
-        if (!res.ok) throw new Error(data.error || ('http ' + res.status));
-        return data;
-      } catch (e) {
-        if (opts.fallback !== false) return api(p, { ...opts, fallback: false, _xhr: true });
-        throw e;
-      }
-    }
-
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open(opts.method || 'GET', p, true);
-      Object.keys(headers).forEach(k => xhr.setRequestHeader(k, headers[k]));
-      xhr.onload = () => {
-        let data = {};
-        try { data = JSON.parse(xhr.responseText); } catch(_) {}
-        if (xhr.status === 401) { logout(); reject(new Error('session expired')); return; }
-        if (xhr.status < 200 || xhr.status >= 300) { reject(new Error(data.error || ('http ' + xhr.status))); return; }
-        resolve(data);
-      };
-      xhr.onerror = () => reject(new Error('network error'));
-      xhr.onabort = () => reject(new Error('request aborted'));
-      xhr.send(opts.body ? JSON.stringify(opts.body) : null);
-    });
+    const res = await fetch(p, { method: opts.method || 'GET', headers, body: opts.body ? JSON.stringify(opts.body) : undefined });
+    let data = {};
+    try { data = await res.json(); } catch(_) {}
+    if (res.status === 401) { logout(); throw new Error('session expired'); }
+    if (!res.ok) throw new Error(data.error || ('http ' + res.status));
+    return data;
   }
 
   function logout(){
@@ -334,10 +261,8 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
     show('login');
   }
 
-  function loadBest(){
-    return api('/api/me').then(function(r) {
-      state.best = r.best_by_mode || state.best;
-    }).catch(function(_) {});
+  async function loadBest(){
+    try { const r = await api('/api/me'); state.best = r.best_by_mode || state.best; } catch(_) {}
   }
 
   function updateModeButtons(){
@@ -350,18 +275,17 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
     show('home');
   }
 
-  $('#login-btn').addEventListener('click', function() {
+  $('#login-btn').addEventListener('click', async () => {
     const name = $('#login-name').value.trim();
     if (!/^[A-Za-z0-9_]{2,16}$/.test(name)) { toast('invalid name'); return; }
-    api('/api/login', { method: 'POST', body: { player_name: name } })
-      .then(function(r) {
-        state.token = r.token; state.player = r.player_name;
-        localStorage.setItem('snake_token', r.token);
-        localStorage.setItem('snake_player', r.player_name);
-        return loadBest();
-      })
-      .then(function() { enterHome(); })
-      .catch(function(e){ toast(e.message); });
+    try {
+      const r = await api('/api/login', { method: 'POST', body: { player_name: name } });
+      state.token = r.token; state.player = r.player_name;
+      localStorage.setItem('snake_token', r.token);
+      localStorage.setItem('snake_player', r.player_name);
+      await loadBest();
+      enterHome();
+    } catch(e){ toast(e.message); }
   });
   $('#login-name').addEventListener('keydown', e => { if (e.key === 'Enter') $('#login-btn').click(); });
 
@@ -380,28 +304,28 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
 
   $$('.smode-btn').forEach(b => b.addEventListener('click', () => openScores(b.dataset.mode)));
 
-  function openScores(mode){
+  async function openScores(mode){
     $$('.smode-btn').forEach(b => b.classList.toggle('active', b.dataset.mode === mode));
     show('scores');
     const list = $('#scores-list');
     list.innerHTML = '<div class="dim">loading...</div>';
-    api('/api/scores?mode=' + encodeURIComponent(mode))
-      .then(function(r) {
-        if (!r.scores.length) { list.innerHTML = '<div class="dim">no scores yet - go play!</div>'; return; }
-        list.innerHTML = r.scores.map((s, i) => {
-          const cls = ['score-row', i === 0 ? 'gold' : '', s.player_name === state.player ? 'me' : ''].filter(Boolean).join(' ');
-          return '<div class="' + cls + '"><span>' + (i+1) + '. ' + escapeHtml(s.player_name) + '</span><span>' + s.high_score + '</span></div>';
-        }).join('');
-      })
-      .catch(function(e){ list.innerHTML = '<div class="dim">error: ' + escapeHtml(e.message) + '</div>'; });
+    try {
+      const r = await api('/api/scores?mode=' + encodeURIComponent(mode));
+      if (!r.scores.length) { list.innerHTML = '<div class="dim">no scores yet - go play!</div>'; return; }
+      list.innerHTML = r.scores.map((s, i) => {
+        const cls = ['score-row', i === 0 ? 'gold' : '', s.player_name === state.player ? 'me' : ''].filter(Boolean).join(' ');
+        return '<div class="' + cls + '"><span>' + (i+1) + '. ' + escapeHtml(s.player_name) + '</span><span>' + s.high_score + '</span></div>';
+      }).join('');
+    } catch(e){ list.innerHTML = '<div class="dim">error: ' + escapeHtml(e.message) + '</div>'; }
   }
   function escapeHtml(s){ return String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 
   // ---- game ----
+  const canvas = $('#board');
+  const ctx = canvas.getContext('2d');
   let snake, dir, nextDir, food, score, tickMs, loopId = null, paused = false, alive = false, cellPx = 20;
 
   function resizeCanvas(){
-    if (!useCanvas) return;
     const dpr = window.devicePixelRatio || 1;
     const cssSize = canvas.clientWidth;
     canvas.width = Math.max(1, Math.floor(cssSize * dpr));
@@ -409,85 +333,32 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
     cellPx = canvas.width / GRID;
   }
 
-  function drawGrid(){
-    if (useCanvas) {
-      drawCanvas();
-    } else {
-      drawHtmlGrid();
-    }
-  }
-
-  function drawCanvas(){
-    ctx.fillStyle = cssVar('--grid');
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.strokeStyle = cssVar('--line');
-    ctx.lineWidth = 1;
-    for (let i = 1; i < GRID; i++){
-      ctx.beginPath(); ctx.moveTo(i * cellPx, 0); ctx.lineTo(i * cellPx, canvas.height); ctx.stroke();
-      ctx.beginPath(); ctx.moveTo(0, i * cellPx); ctx.lineTo(canvas.width, i * cellPx); ctx.stroke();
-    }
-    const pulse = 1 + Math.sin(Date.now() / 200) * 0.08;
-    const fx = food.x * cellPx, fy = food.y * cellPx;
-    const pad = cellPx * (1 - 0.7 * pulse) / 2;
-    ctx.fillStyle = cssVar('--warn');
-    ctx.fillRect(fx + pad, fy + pad, cellPx - pad*2, cellPx - pad*2);
-    snake.forEach((s, i) => {
-      ctx.fillStyle = i === 0 ? cssVar('--fg') : cssVar('--accent');
-      ctx.fillRect(s.x * cellPx + 1, s.y * cellPx + 1, cellPx - 2, cellPx - 2);
-    });
-  }
-
-  function drawHtmlGrid(){
-    const cells = gridBoard.querySelectorAll('.cell');
-    if (cells.length !== GRID * GRID) {
-      gridBoard.innerHTML = '';
-      for (let i = 0; i < GRID * GRID; i++) {
-        const c = document.createElement('div');
-        c.className = 'cell';
-        c.dataset.idx = i;
-        gridBoard.appendChild(c);
-      }
-    }
-    gridBoard.querySelectorAll('.cell').forEach(c => c.className = 'cell');
-    snake.forEach((s, i) => {
-      const idx = s.y * GRID + s.x;
-      const c = gridBoard.querySelector('[data-idx="' + idx + '"]');
-      if (c) c.className = 'cell ' + (i === 0 ? 'head' : 'snake');
-    });
-    const foodIdx = food.y * GRID + food.x;
-    const foodCell = gridBoard.querySelector('[data-idx="' + foodIdx + '"]');
-    if (foodCell) foodCell.className = 'cell food';
-  }
-
   function startGame(){
-    if (!detectRenderer()) {
-      // Fallback: use HTML grid
-    }
     show('game');
-    snake = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
-    dir = {x:1,y:0}; nextDir = {x:1,y:0};
-    score = 0; alive = true; paused = false;
-    tickMs = SPEEDS[state.mode];
-    placeFood();
-    $('#lbl-mode').textContent = state.mode.toUpperCase();
-    $('#lbl-score').textContent = '0';
-    $('#lbl-best').textContent = state.best[state.mode] || 0;
-    $('#pause-btn').textContent = 'PAUSE';
-    if (useCanvas) resizeCanvas();
-    drawGrid();
-    if (loopId) clearInterval(loopId);
-    loopId = setInterval(tick, tickMs);
+    requestAnimationFrame(() => {
+      resizeCanvas();
+      snake = [{x:10,y:10},{x:9,y:10},{x:8,y:10}];
+      dir = {x:1,y:0}; nextDir = {x:1,y:0};
+      score = 0; alive = true; paused = false;
+      tickMs = SPEEDS[state.mode];
+      placeFood();
+      $('#lbl-mode').textContent = state.mode.toUpperCase();
+      $('#lbl-score').textContent = '0';
+      $('#lbl-best').textContent = state.best[state.mode] || 0;
+      $('#pause-btn').textContent = 'PAUSE';
+      draw();
+      if (loopId) clearInterval(loopId);
+      loopId = setInterval(tick, tickMs);
+    });
   }
-
   function stopGame(){ if (loopId) { clearInterval(loopId); loopId = null; } alive = false; }
   function togglePause(){
     if (!alive) return;
     paused = !paused;
     $('#pause-btn').textContent = paused ? 'RESUME' : 'PAUSE';
-    if (paused){ if (loopId){ clearInterval(loopId); loopId = null; } }
+    if (paused){ if (loopId){ clearInterval(loopId); loopId = null; } drawPaused(); }
     else { loopId = setInterval(tick, tickMs); }
   }
-
   function placeFood(){
     const taken = new Set(snake.map(s => s.x + ',' + s.y));
     let f, tries = 0;
@@ -495,7 +366,6 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
     while (taken.has(f.x+','+f.y) && tries < 500);
     food = f;
   }
-
   function tick(){
     if (!alive || paused) return;
     dir = nextDir;
@@ -510,42 +380,66 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
     } else {
       snake.pop();
     }
-    drawGrid();
+    draw();
   }
-
-  function gameOver(){
+  function draw(){
+    ctx.fillStyle = cssVar('--grid');
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // subtle grid lines
+    ctx.strokeStyle = cssVar('--line');
+    ctx.lineWidth = 1;
+    for (let i = 1; i < GRID; i++){
+      ctx.beginPath(); ctx.moveTo(i * cellPx, 0); ctx.lineTo(i * cellPx, canvas.height); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(0, i * cellPx); ctx.lineTo(canvas.width, i * cellPx); ctx.stroke();
+    }
+    // food (pulsing goodie)
+    const pulse = 1 + Math.sin(Date.now() / 200) * 0.08;
+    const fx = food.x * cellPx, fy = food.y * cellPx;
+    const pad = cellPx * (1 - 0.7 * pulse) / 2;
+    ctx.fillStyle = cssVar('--warn');
+    ctx.fillRect(fx + pad, fy + pad, cellPx - pad*2, cellPx - pad*2);
+    // snake
+    snake.forEach((s, i) => {
+      ctx.fillStyle = i === 0 ? cssVar('--fg') : cssVar('--accent');
+      ctx.fillRect(s.x * cellPx + 1, s.y * cellPx + 1, cellPx - 2, cellPx - 2);
+    });
+  }
+  function drawPaused(){
+    ctx.fillStyle = 'rgba(0,0,0,0.65)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = cssVar('--accent');
+    ctx.font = (canvas.width / 11) + 'px monospace';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('PAUSED', canvas.width / 2, canvas.height / 2);
+  }
+  async function gameOver(){
     alive = false;
     stopGame();
-    if (useCanvas) {
-      ctx.fillStyle = 'rgba(0,0,0,0.7)';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = cssVar('--danger');
-      ctx.font = (canvas.width / 11) + 'px monospace';
-      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2 - canvas.width / 16);
-      ctx.fillStyle = cssVar('--fg');
-      ctx.font = (canvas.width / 16) + 'px monospace';
-      ctx.fillText('SCORE ' + score, canvas.width / 2, canvas.height / 2 + canvas.width / 16);
-    } else {
-      gridBoard.style.opacity = '0.4';
-    }
+    ctx.fillStyle = 'rgba(0,0,0,0.7)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = cssVar('--danger');
+    ctx.font = (canvas.width / 11) + 'px monospace';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('GAME OVER', canvas.width / 2, canvas.height / 2 - canvas.width / 16);
+    ctx.fillStyle = cssVar('--fg');
+    ctx.font = (canvas.width / 16) + 'px monospace';
+    ctx.fillText('SCORE ' + score, canvas.width / 2, canvas.height / 2 + canvas.width / 16);
     const prev = state.best[state.mode] || 0;
     if (score > prev){
       state.best[state.mode] = score;
       $('#lbl-best').textContent = score;
-      api('/api/score', { method: 'POST', body: { game_type: state.mode, score: score } })
-        .then(function() { toast('NEW HIGH SCORE!'); })
-        .catch(function(e){ toast('save failed: ' + e.message); });
+      try {
+        await api('/api/score', { method: 'POST', body: { game_type: state.mode, score: score } });
+        toast('NEW HIGH SCORE!');
+      } catch(e){ toast('save failed: ' + e.message); }
     }
   }
-
   const DIRS = { up:{x:0,y:-1}, down:{x:0,y:1}, left:{x:-1,y:0}, right:{x:1,y:0} };
   function setDir(d){
     if (!alive || paused) return;
     if (d.x === -dir.x && d.y === -dir.y) return;
     nextDir = d;
   }
-
   $$('.dir-btn').forEach(b => {
     const fire = e => { e.preventDefault(); setDir(DIRS[b.dataset.dir]); };
     b.addEventListener('click', fire);
@@ -553,14 +447,11 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
   });
 
   let touchStart = null;
-  document.addEventListener('touchstart', e => {
-    const t = e.target;
-    if (t === canvas || t === gridBoard) {
-      if (e.touches.length !== 1) return;
-      touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
-    }
+  canvas.addEventListener('touchstart', e => {
+    if (e.touches.length !== 1) return;
+    touchStart = { x: e.touches[0].clientX, y: e.touches[0].clientY };
   }, { passive: true });
-  document.addEventListener('touchend', e => {
+  canvas.addEventListener('touchend', e => {
     if (!touchStart || !e.changedTouches.length) return;
     const t = e.changedTouches[0];
     const dx = t.clientX - touchStart.x, dy = t.clientY - touchStart.y;
@@ -571,50 +462,26 @@ input[type=text]:focus{outline:none;border-color:var(--accent);color:var(--accen
   }, { passive: true });
 
 
+  document.addEventListener('keydown', e => {
+    const m = { ArrowUp:'up', ArrowDown:'down', ArrowLeft:'left', ArrowRight:'right'};
+    if (m[e.key]) { e.preventDefault(); setDir(DIRS[m[e.key]]); }
+    if (e.key === ' ') { e.preventDefault(); togglePause(); }
+  });
+
   window.addEventListener('resize', () => {
-    if (document.getElementById('screen-game').classList.contains('active') && useCanvas){
-      resizeCanvas(); drawGrid();
+    if (canvas.clientWidth && document.getElementById('screen-game').classList.contains('active')){
+      resizeCanvas(); draw();
     }
   });
 
-  function updateLoginStatus(msg) {
-    const status = $('#login-status');
-    if (status) status.textContent = msg;
-  }
-
-  function boot(){
-    dbg('Init start');
-    updateLoginStatus('initializing...');
-
-    detectRenderer();
-    dbg('Renderer: ' + (useCanvas ? 'canvas' : 'html'));
-    updateLoginStatus('renderer ok');
-
+  (async function boot(){
     if (state.token){
-      dbg('Token found, restoring');
-      updateLoginStatus('loading profile...');
-      loadBest()
-        .then(function() {
-          dbg('Profile loaded');
-          enterHome();
-        })
-        .catch(function(e){
-          dbg('Restore error: ' + e.message);
-          updateLoginStatus('session expired');
-          logout();
-        });
+      try { await loadBest(); enterHome(); }
+      catch(_) { logout(); }
     } else {
-      dbg('No token');
-      updateLoginStatus('pick a name to begin');
+      show('login');
     }
-    dbg('Ready');
-  }
-
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', boot);
-  } else {
-    boot();
-  }
+  })();
 })();
 </script>
 </body>
