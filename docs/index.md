@@ -34,6 +34,3 @@
 - [Calculator](https://replit.com/@rubixcoder/calculator-start?v=1)
 - [Guess the Number](https://replit.com/@rubixcoder/guess-the-number-start?v=1)
 - [Higher Lower](https://replit.com/@rubixcoder/higher-lower-start?v=1)
-
-Coming up next:
-- Reseach paper summary using LLM
